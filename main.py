@@ -1,30 +1,70 @@
 import argparse
+import os
+
+
+header = r"""
+  ██████ ▄▄▄█████▓ ▒█████   ▄████▄   ██ ▄█▀ ██░ ██  ▒█████   ██▓     ███▄ ▄███▓
+ ▒██    ▒ ▓  ██▒ ▓▒▒██▒  ██▒▒██▀ ▀█   ██▄█▒ ▓██░ ██▒▒██▒  ██▒▓██▒    ▓██▒▀█▀ ██▒
+ ░ ▓██▄   ▒ ▓██░ ▒░▒██░  ██▒▒▓█    ▄ ▓███▄░ ▒██▀▀██░▒██░  ██▒▒██░    ▓██    ▓██░
+   ▒   ██▒░ ▓██▓ ░ ▒██   ██░▒▓▓▄ ▄██▒▓██ █▄ ░▓█ ░██ ▒██   ██░▒██░    ▒██    ▒██ 
+ ▒██████▒▒  ▒██▒ ░ ░ ████▓▒░▒ ▓███▀ ░▒██▒ █▄░▓█▒░██▓░ ████▓▒░░██████▒▒██▒   ░██▒
+ ▒ ▒▓▒ ▒ ░  ▒ ░░   ░ ▒░▒░▒░ ░ ░▒ ▒  ░▒ ▒▒ ▓▒ ▒ ░░▒░▒░ ▒░▒░▒░ ░ ▒░▓  ░░ ▒░   ░  ░
+ ░ ░▒  ░ ░    ░      ░ ▒ ▒░   ░  ▒   ░ ░▒ ▒░ ▒ ░▒░ ░  ░ ▒ ▒░ ░ ░ ▒  ░░  ░      ░
+ ░  ░  ░    ░      ░ ░ ░ ▒  ░        ░ ░░ ░  ░  ░░ ░░ ░ ░ ▒    ░ ░   ░      ░   
+       ░               ░ ░  ░ ░      ░  ░    ░  ░  ░    ░ ░      ░  ░       ░   
+                           ░                                                   
+"""
 
 def arg_parse():
-    parser = argparse.ArgumentParser(description="Stockholm")
-    parser.add_argument('-v', '--version', action='store_true', help='show the version of the program')
-    parser.add_argument('-r', '--reverse', type=str, help='Followed by the key entered as an argument to reverse the infection.')
-    parser.add_argument('-s', '--silent', action='store_true', help='In which case the program will not produce any output.')
+    print (header)
 
-    args = parser.parse_args()
+    desc = "Stockholm is a Python script designed for testing and \
+        gaining a better understanding of how ransomware functions. \
+        It encrypts data using the Fernet encryption method and appends \
+        the '.ft' extension to all files within the specified folder. This \
+        program exclusively operates within a folder named 'infection' located \
+        in the user's HOME directory and only encrypts files whose extensions have \
+        been targeted by Wannacry."
 
-    if args.version:
-        print("Version: 0.0.1")
-    elif args.reverse:
-        print(f"Reversing infection with key: {args.reverse}")
-    elif args.silent:
-        print("Silent mode activated.")
+    parser = argparse.ArgumentParser(description=desc)
+    parser.add_argument("-v", "--version", action="store_true", help="show the version of the program.")
+    parser.add_argument("-r", "--reverse", nargs=1, metavar="<KEY>", help="reverse the infection with the <KEY> entered as argument")
+    parser.add_argument("-s", "--silent", action="store_true", help="the program will not produce any output")
+    return parser.parse_args()
 
-    return args
+def getHome(): 
+    paths = os.path.expanduser("~")
+    try:
+        if paths is None:
+                raise ValueError("Home path not found.")
+        if os.path.isdir(paths) == False:
+                raise ValueError("Home not a dir")
+    except ValueError as error:
+        print(f"Hata: {error}")
+    return paths
+
+def infectionFolder(home):
+    infection_path = os.path.join(home, "infection")
+    if not os.path.exists(infection_path):
+        print(f"{infection_path} not found")
+    try:
+        os.mkdir(infection_path)
+    except Exception as e:
+        print(f"Error: Could not create directory {infection_path}. Reason: {e}")
+    return infection_path
 
 def main():
-    args = arg_parse()
+    args = arg_parse() #argümanları pars edip alıyorum
+    silent = False
     if args.version:
-        print("Version information shown")
+       print("version : 0.0.2")
     elif args.reverse:
-        print(f"Reversed with key: {args.reverse}")
+       print("sa")
     elif args.silent:
-        print("No output (silent mode)")
+        silent = args.silent
+        print("sesiz moda geçti")
+    homePath = getHome(silent) #kullanıcnın home dizininin yolunu alıyorum path varmı yokmu bunun kontrollerini yapıyorum
+    infectionPath = infectionFolder(homePath, silent)
 
 if __name__ == "__main__":
     main()
