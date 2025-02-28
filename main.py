@@ -47,10 +47,10 @@ def infectionFolder(home):
     infection_path = os.path.join(home, "infection")
     if not os.path.exists(infection_path):
         print(f"{infection_path} not found")
-    try:
-        os.mkdir(infection_path)
-    except Exception as e:
-        print(f"Error: Could not create directory {infection_path}. Reason: {e}")
+        try:
+            os.mkdir(infection_path)
+        except Exception as e:
+            print(f"Error: Could not create directory {infection_path}. Reason: {e}")
     return infection_path
 
 def main():
@@ -64,7 +64,7 @@ def main():
         silent = args.silent
         print("sesiz moda geçti")
     homePath = getHome(silent) #kullanıcnın home dizininin yolunu alıyorum path varmı yokmu bunun kontrollerini yapıyorum
-    infectionPath = infectionFolder(homePath, silent)
+    infectionPath = infectionFolder(homePath, silent) #home dizinine infection adında bir dosya yoksa oluşturuyor
 
 if __name__ == "__main__":
     main()
