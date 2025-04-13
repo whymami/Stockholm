@@ -34,7 +34,6 @@ WannacryTarget = [
     ".wma", ".wmv", ".xls", ".xlsx", ".xml", ".zip"
 ]
 
-
 def arg_parse():
     print (header)
 

