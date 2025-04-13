@@ -20,12 +20,12 @@ def getInfectionFiles(infectionPath):
             file_list.append(full_path)
     return file_list
         
-def decrypedFile(homePath, key):
+def decrypedFile(homePath, key, silent):
     InfectionPath = GetinfectionPath(homePath)
     
     # Eğer infection klasörü yoksa, hata mesajı verebiliriz
     if not InfectionPath:
-        print("❌ 'infection' klasörü bulunamadı!")
+        print("❌ 'infection' not found!")
         return
     
     InfectionFiles = getInfectionFiles(InfectionPath)
@@ -59,5 +59,5 @@ def decrypedFile(homePath, key):
 
         # Şifreli dosyayı sil
         os.remove(i)
-
-        print(f"✔️ {i} dosyası çözüldü ve {original_filename} olarak kaydedildi.")
+        if not silent:
+            print(f"✔️ {i} dosyası çözüldü ve {original_filename} olarak kaydedildi.")
